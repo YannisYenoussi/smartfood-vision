@@ -10,9 +10,9 @@ Une application web intelligente qui analyse les photos de repas avec l'IA pour 
 
 ## � Membres du groupe
 
-- **Baptiste D** - Développeur backend
-- **Gatta B** - Développeur frontend
-- **Yannis Y** - Recherche IA / Tests
+- **Baptiste DASILVA** - Développeur backend
+- **Gatta BA** - Développeur frontend
+- **Yannis YENOUSSI** - Recherche IA / Tests
 
 - [Aperçu](#aperçu)
 - [Installation rapide](#installation-rapide)

@@ -8,7 +8,11 @@ Une application web intelligente qui analyse les photos de repas avec l'IA pour 
 
 ---
 
-## 📋 Table des matières
+## � Membres du groupe
+
+- **Baptiste D** - Développeur backend
+- **Gatta B** - Développeur frontend
+- **Yannis Y** - Recherche IA / Tests
 
 - [Aperçu](#aperçu)
 - [Installation rapide](#installation-rapide)
@@ -259,60 +263,5 @@ Accès :
 
 MIT © 2026 SmartFood Vision Project
 
----
 
-**Made with ❤️ for School Workshops**
 
-| Atelier | Objectif | Status |
-|---------|----------|--------|
-| Atelier 1 | Prototype web React + Backend | ✅ Complet |
-| Atelier 2 | Serveur MCP + Claude Desktop | ✅ Complet |
-- [ ] Prompt injection bloquée
-- [ ] No file access possible
-- [ ] No command execution possible
-- [ ] No env exposure
-- [ ] Tests réussis avec MCP Inspector
-
-### Documentation
-- [ ] README complet et clair
-- [ ] Instructions d'installation lisibles
-- [ ] Variables d'env documentées
-- [ ] Exemples de test fournis
-- [ ] Claude Desktop config incluse
-- [ ] Tests de sécurité expliqués
-- [ ] Limites documentées
-
-### Code
-- [ ] TypeScript sans erreurs
-- [ ] Code formaté et cohérent
-- [ ] Commentaires sur points complexes
-- [ ] Pas de secrets en dur
-- [ ] Structure claire
-- [ ] Noms explicites
-
----
-
-## 👥 Contribution
-
-Projet scolaire SmartFood Vision 2024
-
----
-
-## 📄 Licence
-
-MIT
-
----
-
-## 📞 Support
-
-Pour les questions :
-1. Vérifiez la section [Lancement](#lancement)
-2. Consultez les [Tests de sécurité](#tests-de-sécurité)
-3. Vérifiez les logs du backend
-4. Utilisez MCP Inspector pour déboguer les outils
-5. Lisez la documentation complète ci-dessus
-
----
-
-**Bon rendu ! 🎉**

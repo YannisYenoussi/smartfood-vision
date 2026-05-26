@@ -1,206 +1,318 @@
-# SmartFood Vision
+# 🍽️ SmartFood Vision
 
-Application web d'analyse d'aliments par intelligence artificielle.
-Elle permet d'identifier les aliments présents dans une photo et d'afficher des informations nutritionnelles associées.
+Une application web intelligente qui analyse les photos de repas avec l'IA pour détecter les aliments et estimer leur valeur nutritionnelle.
 
-## Membres du groupe
+[![Tech Stack](https://img.shields.io/badge/Stack-React%20|%20Express%20|%20MCP-blue?style=flat-square)](https://smartfood-vision.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green?style=flat-square)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-- Baptiste D (Développeur backend)
-- Gatta B (Développeur frontend)
-- Yannis Y (Recherche IA / tests)
+---
 
-## Concept
+## 📋 Table des matières
 
-L'utilisateur prend ou importe une photo d'un plat. L'application envoie l'image à Azure Computer Vision qui détecte les aliments présents. Les résultats sont affichés avec les informations nutritionnelles estimées.
+- [Aperçu](#aperçu)
+- [Installation rapide](#installation-rapide)
+- [Architecture](#architecture)
+- [Configuration](#configuration)
+- [Utilisation](#utilisation)
+- [Tests & Sécurité](#tests--sécurité)
+- [Documentation](#documentation)
 
-## Technologies
 
-- **Frontend** : HTML5, CSS3, JavaScript
-- **Backend** : Python, Flask
-- **Base de données** : MySQL
-- **IA** : Azure Computer Vision (Microsoft Azure)
+---
 
-## Installation
+## 📸 Aperçu
+
+SmartFood Vision offre trois composants intégrés :
+
+### 1. **Application Web** (Atelier 1)
+- Interface moderne et responsive
+- Upload d'images pour l'analyse
+- Affichage des aliments détectés avec scores de confiance
+- Estimation nutritionnelle en calories
+- Historique des analyses (localStorage)
+- Mode démo (mock) et mode Azure Vision
+
+### 2. **Serveur MCP** (Atelier 2)
+- Intégration Model Context Protocol pour Claude Desktop
+- 5 outils IA disponibles : capabilities, image analysis, nutrition, security, policy
+- Validation stricte des entrées contre les injections
+- Documentation complète des menaces
+
+### 3. **Architecture Sécurisée**
+- Validation URL stricte
+- Protection contre les injections (SQL, XSS, prompt injection)
+- Gestion d'erreurs robuste
+- CORS configuré
+
+
+---
+
+## 🚀 Installation rapide
 
 ### Prérequis
+```bash
+Node.js 18+
+npm
+Git
+```
 
-- Python 3.11+
-- Un compte Azure avec une ressource Computer Vision active
-
-### Dépendances
+### En 3 commandes
 
 ```bash
-pip install azure-cognitiveservices-vision-computervision
-pip install python-dotenv
+# Clone et setup
+git clone <repo-url>
+cd smartfood-vision
+
+# Install dépendances
+./QUICKSTART.bat  # Windows ou ./QUICKSTART.sh pour macOS/Linux
 ```
+
+Ou **manuellement** :
+
+```bash
+# Terminal 1 : Backend
+cd backend && npm install && npm run dev
+
+# Terminal 2 : Frontend  
+cd frontend && npm install && npm run dev
+
+# Terminal 3 : MCP Server (optionnel)
+cd mcp-server && npm install && npm run dev
+```
+
+**Accès :**
+- Frontend : http://localhost:5173
+- Backend API : http://localhost:3001/api/analyze
+- Health check : http://localhost:3001/api/health
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  🌐 FRONTEND (React + Vite + Tailwind) on :5173         │
+│     Components, services, localStorage history          │
+└──────────────────┬──────────────────────────────────────┘
+                   │ HTTP REST
+                   ↓
+┌─────────────────────────────────────────────────────────┐
+│  🔧 BACKEND (Express + Node.js) on :3001                │
+│     POST /api/analyze, GET /api/health                  │
+│     Azure Vision API (si configuré) ou Mock service     │
+└──────────────────┬──────────────────────────────────────┘
+                   │ stdio
+                   ↓
+┌─────────────────────────────────────────────────────────┐
+│  🤖 MCP SERVER (Model Context Protocol)                 │
+│     5 outils pour Claude Desktop                        │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ⚙️ Configuration
 
 ### Variables d'environnement
 
-Créer un fichier `.env` à la racine du projet :
+#### `backend/.env` (optionnel, mock par défaut)
 
+```env
+# Azure Vision (laisser vide pour utiliser le mock)
+AZURE_VISION_ENDPOINT=https://your-resource.cognitiveservices.azure.com/
+AZURE_VISION_KEY=your-32-char-key
+
+PORT=3001
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 ```
-AZURE_KEY= clé1
-AZURE_ENDPOINT=https://nom-ressource.cognitiveservices.azure.com/
+
+#### `mcp-server/.env` (optionnel)
+
+```env
+BACKEND_URL=http://localhost:3001
 ```
 
+### Activer Azure Vision
 
-## Tests IA réalisés
-
-Modèle utilisé : Azure Computer Vision  
-Paramètres : `visual_features=["Tags", "Description"]`  
-Script de test : `test_api.py`
-
----
-
-### Test 1 — Pizza Margherita
-
-**Tags détectés :**
-| Tag | Confiance |
-|---|---|
-| food | 99.9% |
-| dish | 99.8% |
-| pizza | 99.6% |
-| fast food | 97.5% |
-| italian food | 96.4% |
-| pizza cheese | 96.0% |
-| baked goods | 94.1% |
-| california-style pizza | 93.7% |
-| cuisine | 91.1% |
-| flatbread | 89.5% |
-| recipe | 88.9% |
-| dairy | 88.2% |
-| quiche | 86.8% |
-| tomato pie | 86.5% |
-| sicilian pizza | 85.1% |
-| cheese | 68.5% |
-| toppings | 67.6% |
-
-**Description générée :** *"a pizza with cheese and basil"*
-
-**Attendu :** Pizza Margherita  
-**Obtenu :** Pizza identifiée avec précision, ingrédients détectés (cheese, toppings, basil)
-
-**Analyse :** Résultat excellent. L'API identifie non seulement "pizza" avec 99.6% de confiance, mais détecte aussi le type (italian food, california-style, sicilian) et les composants (cheese, toppings). La description mentionne même le basilic visible sur l'image. C'est le cas idéal — un plat occidental iconique avec une forme visuelle très standardisée.
+1. Compte Azure gratuit : https://azure.microsoft.com/fr-fr/free/
+2. Ressource **Computer Vision** (tier gratuit = 5000 appels/mois)
+3. Copie `Endpoint` et `Clé 1` dans `backend/.env`
+4. Redémarre : `cd backend && npm run dev`
 
 ---
 
-### Test 2 — Couscous simple (poulet)
+## 💻 Utilisation
 
-**Tags détectés :**
-| Tag | Confiance |
-|---|---|
-| food | 99.1% |
-| dish | 97.9% |
-| indoor | 95.2% |
-| cuisine | 93.6% |
-| table | 89.0% |
-| recipe | 84.8% |
-| wooden | 83.6% |
-| pasta | 77.0% |
-| floor | 74.2% |
-| rice | 69.5% |
+### 1. Application Web
 
-**Description générée :** *"a bowl of food"*
+1. Ouvre http://localhost:5173
+2. Colle une URL d'image (JPG, PNG, WebP)
+3. Clique **"Analyser"**
+4. Vois les résultats :
+   - Aliments détectés avec scores
+   - Calories estimées
+   - Résumé nutritionnel
+   - Avertissement médical
 
-**Attendu :** Couscous  
-**Obtenu :** "pasta" et "rice" — aucune mention de couscous
+### 2. API Backend
 
-**Analyse :** L'API échoue à identifier le couscous. Elle associe la semoule à "pasta" ou "rice" car visuellement similaires pour un modèle entraîné principalement sur des données occidentales. La description "a bowl of food" est extrêmement vague. Le tag "floor" à 74% montre aussi que la table en bois a été mal interprétée.
+```bash
+# Health check
+curl http://localhost:3001/api/health
 
----
+# Analyse image
+curl -X POST http://localhost:3001/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"imageUrl": "https://example.com/food.jpg"}'
+```
 
-### Test 3 — Couscous complet (viande et légumes)
+### 3. MCP Server (Claude Desktop)
 
-**Tags détectés :**
-| Tag | Confiance |
-|---|---|
-| food | 98.5% |
-| stew | 95.7% |
-| cuisine | 93.7% |
-| plate | 91.0% |
-| table | 90.2% |
-| vegetable | 89.0% |
-| ingredient | 87.8% |
-| cozido | 84.9% |
-| legume | 84.1% |
-| indoor | 75.3% |
-| meat | 73.0% |
-| carrot | 66.3% |
-| dish | 65.2% |
-| bean | 55.2% |
-| plant | 54.7% |
+**Configuration (`claude_desktop_config.json`):**
 
-**Description générée :** *"a bowl of food"*
+```json
+{
+  "mcpServers": {
+    "smartfood": {
+      "command": "npm",
+      "args": ["run", "dev"],
+      "cwd": "/path/to/mcp-server"
+    }
+  }
+}
+```
 
-**Attendu :** Couscous avec viande et légumes  
-**Obtenu :** "stew" (ragoût) et "cozido" (plat portugais)
-
-**Analyse :** L'API détecte correctement les ingrédients individuels (carrot, meat, vegetable, bean) mais ne reconnaît pas le plat global. Elle associe le couscous à "cozido", un ragoût portugais visuellement similaire. C'est une limite claire du modèle sur les cuisines du Maghreb. Points positifs : la détection des légumes individuels reste utile pour estimer des valeurs nutritionnelles par ingrédient.
+Redémarre Claude Desktop et utilise les 5 outils.
 
 ---
 
-### Test 4 — Paella
+## 🧪 Tests & Sécurité
 
-**Tags détectés :**
-| Tag | Confiance |
-|---|---|
-| mixture | 85.6% |
-| food | 58.6% |
-| paella | 55.3% |
+### Tests manuels
 
-**Description générée :** *"a bowl of soup"*
+```bash
+# Terminal 1 : Backend
+cd backend && npm run dev
 
-**Attendu :** Paella  
-**Obtenu :** "paella" trouvé mais avec seulement 55.3% de confiance
+# Terminal 2 : Frontend
+cd frontend && npm run dev
 
-**Analyse :** La paella est reconnue mais avec une confiance faible (55%). La description "a bowl of soup" est incorrecte — la paella est servie dans une poêle plate, pas un bol. Le faible nombre de tags retournés (3 seulement) suggère que l'image était difficile à analyser, probablement à cause de l'angle et des couleurs uniformes du riz safran.
+# Terminal 3 : MCP Server
+cd mcp-server && npm run dev
+```
 
----
+Ouvre http://localhost:5173 et teste avec :
+- https://images.pexels.com/photos/821365/pexels-photo-821365.jpeg
+- https://images.pexels.com/photos/3639901/pexels-photo-3639901.jpeg
 
-### Test 5 — Baguette
+### Tests de sécurité
 
-**Tags détectés :**
-| Tag | Confiance |
-|---|---|
-| food | 98.9% |
-| bread | 98.7% |
-| baked goods | 97.7% |
-| gluten | 96.0% |
-| snack | 95.7% |
-| fast food | 92.1% |
-| loaf | 90.3% |
-| wheat gluten | 89.6% |
-| baker's yeast | 89.4% |
-| ciabatta | 86.5% |
-| whole grain | 86.2% |
-| sourdough | 85.3% |
-| bread roll | 85.2% |
-| ground | 78.7% |
-| indoor | 77.1% |
-| floor | 63.5% |
+Le projet protège contre :
+- ✅ URL validation stricte
+- ✅ SQL injection
+- ✅ XSS attacks
+- ✅ Prompt injection
+- ✅ Environment variable exposure
 
-**Description générée :** *"a piece of food on a counter"*
-
-**Attendu :** Baguette  
-**Obtenu :** "bread" correct, mais "baguette" absent — propose "ciabatta" et "sourdough"
-
-**Analyse :** L'API reconnaît très bien la catégorie générale (bread à 98.7%) et détecte des sous-types de pain (ciabatta, sourdough, bread roll). Cependant le terme "baguette" n'apparaît pas, probablement sous-représenté dans les données d'entraînement. La description est correcte mais vague. Le tag "floor" à 63.5% montre une confusion entre le plan de travail clair et un sol.
+Voir [TESTING.md](TESTING.md) pour les cas complets.
 
 ---
 
-## Conclusions générales
+## 📚 Documentation complémentaire
 
-**Points forts de l'API :**
-- Excellente précision sur les plats occidentaux iconiques et les fast food (pizza, burger...)
-- Bonne détection des ingrédients individuels (carotte, viande, légumes)
-- Retourne de nombreux tags utiles avec des scores de confiance exploitables
+| Document | Contenu |
+|----------|---------|
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Guide de déploiement détaillé |
+| [TESTING.md](TESTING.md) | Tests manuels & scénarios de sécurité |
+| [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) | Architecture technique complète |
+| [FINAL_CHECKLIST.md](FINAL_CHECKLIST.md) | Checklist pre-production |
 
-**Limites identifiées :**
-- Faible reconnaissance des plats moins populaires (couscous non reconnu)
-- Le nom exact d'un plat peut être manqué même si la catégorie est correcte (baguette → bread)
-- Les descriptions générées restent souvent vagues ("a bowl of food")
-- L'API détecte des concepts visuels, pas des valeurs nutritionnelles — un mapping manuel sera nécessaire
-- Confusion possible entre surfaces similaires (table en bois → floor)
+---
 
-**Recommandation pour le projet :**
-Plutôt que d'identifier le nom exact du plat, il est plus fiable de s'appuyer sur les ingrédients détectés par l'API (meat, carrot, cheese...) et d'associer des calories à chaque ingrédient via une base de données interne. Cela permet d'estimer les apports nutritionnels même quand le plat n'est pas reconnu précisément.
+## 🐳 Docker
+
+```bash
+docker-compose up
+```
+
+Accès :
+- Frontend : http://localhost:5173
+- Backend : http://localhost:3001
+
+---
+
+## 🛠️ Stack technique
+
+| Composant | Technos |
+|-----------|---------|
+| Frontend | React 18.2 + Vite 5 + TypeScript + Tailwind CSS |
+| Backend | Node.js 18+ + Express 4 + TypeScript |
+| IA | Azure Computer Vision API (ou mock) |
+| MCP | @modelcontextprotocol/sdk 0.5 |
+| Build | tsx + npm |
+
+---
+
+## 📝 License
+
+MIT © 2026 SmartFood Vision Project
+
+---
+
+**Made with ❤️ for School Workshops**
+
+| Atelier | Objectif | Status |
+|---------|----------|--------|
+| Atelier 1 | Prototype web React + Backend | ✅ Complet |
+| Atelier 2 | Serveur MCP + Claude Desktop | ✅ Complet |
+- [ ] Prompt injection bloquée
+- [ ] No file access possible
+- [ ] No command execution possible
+- [ ] No env exposure
+- [ ] Tests réussis avec MCP Inspector
+
+### Documentation
+- [ ] README complet et clair
+- [ ] Instructions d'installation lisibles
+- [ ] Variables d'env documentées
+- [ ] Exemples de test fournis
+- [ ] Claude Desktop config incluse
+- [ ] Tests de sécurité expliqués
+- [ ] Limites documentées
+
+### Code
+- [ ] TypeScript sans erreurs
+- [ ] Code formaté et cohérent
+- [ ] Commentaires sur points complexes
+- [ ] Pas de secrets en dur
+- [ ] Structure claire
+- [ ] Noms explicites
+
+---
+
+## 👥 Contribution
+
+Projet scolaire SmartFood Vision 2024
+
+---
+
+## 📄 Licence
+
+MIT
+
+---
+
+## 📞 Support
+
+Pour les questions :
+1. Vérifiez la section [Lancement](#lancement)
+2. Consultez les [Tests de sécurité](#tests-de-sécurité)
+3. Vérifiez les logs du backend
+4. Utilisez MCP Inspector pour déboguer les outils
+5. Lisez la documentation complète ci-dessus
+
+---
+
+**Bon rendu ! 🎉**

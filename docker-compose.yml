@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:5173
+      # Azure Vision (optional)
+      # - AZURE_VISION_ENDPOINT=
+      # - AZURE_VISION_KEY=
+    volumes:
+      - ./backend/src:/app/src
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    volumes:
+      - ./frontend/src:/app/src
+    command: npm run dev
+
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    environment:
+      - BACKEND_URL=http://backend:3001
+      - NODE_ENV=development
+    volumes:
+      - ./mcp-server/src:/app/src
+    command: npm run dev
